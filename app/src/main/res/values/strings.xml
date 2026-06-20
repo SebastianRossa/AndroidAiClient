@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bedrock Chat</string>
+
+    <!-- Token / settings screen -->
+    <string name="token_screen_title">Bedrock Chat</string>
+    <string name="token_screen_subtitle">AWS Bearer Token und Konfiguration</string>
+    <string name="hint_bearer_token">Bearer Token</string>
+    <string name="hint_region">AWS Region</string>
+    <string name="hint_model_id">Model ID</string>
+    <string name="btn_save">Speichern und loslegen</string>
+
+    <!-- Chat screen -->
+    <string name="hint_message">Nachricht …</string>
+    <string name="btn_send">Senden</string>
+    <string name="dismiss_error">Fehler schließen</string>
+
+    <!-- Error messages -->
+    <string name="error_token_invalid">Token ungültig — bitte neu eingeben</string>
+</resources>

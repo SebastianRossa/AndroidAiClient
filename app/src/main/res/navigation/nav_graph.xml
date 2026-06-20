@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/tokenFragment">
+
+    <fragment
+        android:id="@+id/tokenFragment"
+        android:name="de.bedrockchat.ui.token.TokenFragment"
+        android:label="Konfiguration">
+        <argument
+            android:name="error"
+            app:argType="string"
+            android:defaultValue="" />
+        <!--
+            popUpTo tokenFragment inclusive=true: when going to chat, the token screen is
+            removed from the back stack. Back from chat exits the app rather than
+            returning to the token screen.
+        -->
+        <action
+            android:id="@+id/action_token_to_chat"
+            app:destination="@id/chatFragment"
+            app:popUpTo="@id/tokenFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="de.bedrockchat.ui.chat.ChatFragment"
+        android:label="Bedrock Chat">
+
+        <!--
+            401 redirect: clears the entire back stack so Back from the token
+            screen exits the app instead of returning to a broken chat session.
+        -->
+        <action
+            android:id="@+id/action_chat_to_token"
+            app:destination="@id/tokenFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+
+        <!--
+            Settings navigation: does NOT pop the back stack, so Back from the
+            token settings screen returns the user to the chat.
+        -->
+        <action
+            android:id="@+id/action_chat_to_settings"
+            app:destination="@id/tokenFragment" />
+    </fragment>
+
+</navigation>
