@@ -35,8 +35,8 @@ class ChatViewModel(app: Application) : AndroidViewModel(app) {
     private var sendJob: Job? = null
 
     sealed class UiState {
-        object Idle : UiState()
-        object Loading : UiState()
+        data object Idle : UiState()
+        data object Loading : UiState()
         data class Error(val message: String) : UiState()
     }
 

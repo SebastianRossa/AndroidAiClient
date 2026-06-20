@@ -51,20 +51,14 @@ class ChatFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        binding.recyclerView.apply {
-            this.adapter = this@ChatFragment.adapter
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                stackFromEnd = true
-            }
-        }
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = true }
     }
 
     private fun sendCurrentInput() {
-        val text = binding.editInput.text?.toString() ?: return
-        if (text.isNotBlank()) {
-            viewModel.send(text)
-            binding.editInput.text?.clear()
-        }
+        val text = binding.editInput.text?.toString()?.takeIf { it.isNotBlank() } ?: return
+        viewModel.send(text)
+        binding.editInput.text?.clear()
     }
 
     private fun setupInput() {
@@ -116,8 +110,9 @@ class ChatFragment : Fragment() {
 
                 launch {
                     viewModel.uiState.collect { state ->
-                        binding.progressBar.isVisible = state is ChatViewModel.UiState.Loading
-                        binding.btnSend.isEnabled = state !is ChatViewModel.UiState.Loading
+                        val isLoading = state is ChatViewModel.UiState.Loading
+                        binding.progressBar.isVisible = isLoading
+                        binding.btnSend.isEnabled = !isLoading
                         binding.errorBanner.isVisible = state is ChatViewModel.UiState.Error
 
                         if (state is ChatViewModel.UiState.Error) {
