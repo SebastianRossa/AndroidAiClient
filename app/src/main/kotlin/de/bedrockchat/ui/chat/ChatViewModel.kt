@@ -7,6 +7,7 @@ import de.bedrockchat.data.BedrockRepository
 import de.bedrockchat.data.UnauthorizedException
 import de.bedrockchat.data.model.BedrockConfig
 import de.bedrockchat.data.model.Message
+import de.bedrockchat.data.model.MessageRole
 import de.bedrockchat.security.TokenStore
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,7 +43,7 @@ class ChatViewModel(app: Application) : AndroidViewModel(app) {
     fun send(text: String) {
         if (text.isBlank() || _uiState.value is UiState.Loading) return
 
-        val userMsg = Message("user", text.trim())
+        val userMsg = Message(MessageRole.USER, text.trim())
         val updatedMessages = _messages.value + userMsg
         _messages.value = updatedMessages
         _uiState.value = UiState.Loading
@@ -55,7 +56,7 @@ class ChatViewModel(app: Application) : AndroidViewModel(app) {
         sendJob = viewModelScope.launch {
             repository.converse(updatedMessages, config)
                 .onSuccess { reply ->
-                    _messages.value = updatedMessages + Message("assistant", reply)
+                    _messages.value = updatedMessages + Message(MessageRole.ASSISTANT, reply)
                     _uiState.value = UiState.Idle
                 }
                 .onFailure { error ->

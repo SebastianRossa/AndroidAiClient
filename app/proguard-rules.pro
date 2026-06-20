@@ -1,2 +1,3 @@
+-keep class de.bedrockchat.data.model.** { *; }
 -keep class io.noties.markwon.** { *; }
 -dontwarn okhttp3.internal.platform.**

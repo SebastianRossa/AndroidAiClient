@@ -19,6 +19,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.bedrockchat.R
 import de.bedrockchat.databinding.FragmentChatBinding
+import de.bedrockchat.ui.token.TokenFragment
+import io.noties.markwon.Markwon
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
+import io.noties.markwon.ext.tables.TablePlugin
 import kotlinx.coroutines.launch
 
 class ChatFragment : Fragment() {
@@ -26,7 +30,14 @@ class ChatFragment : Fragment() {
     private var _binding: FragmentChatBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ChatViewModel by viewModels()
-    private val adapter = MessageAdapter()
+    private val adapter by lazy {
+        MessageAdapter(
+            Markwon.builder(requireContext())
+                .usePlugin(StrikethroughPlugin.create())
+                .usePlugin(TablePlugin.create(requireContext()))
+                .build()
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -67,6 +78,8 @@ class ChatFragment : Fragment() {
                 false
             }
         }
+
+        binding.btnDismissError.setOnClickListener { viewModel.clearError() }
     }
 
     private fun setupMenu() {
@@ -116,15 +129,13 @@ class ChatFragment : Fragment() {
                 launch {
                     viewModel.navigateToToken.collect {
                         val args = Bundle().apply {
-                            putString("error", getString(R.string.error_token_invalid))
+                            putString(TokenFragment.ARG_ERROR, getString(R.string.error_token_invalid))
                         }
                         findNavController().navigate(R.id.action_chat_to_token, args)
                     }
                 }
             }
         }
-
-        binding.btnDismissError.setOnClickListener { viewModel.clearError() }
     }
 
     override fun onDestroyView() { super.onDestroyView(); _binding = null }

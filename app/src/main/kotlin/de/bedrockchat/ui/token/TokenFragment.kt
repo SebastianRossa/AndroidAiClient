@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,9 +27,9 @@ class TokenFragment : Fragment() {
         binding.editRegion.setText(viewModel.region)
         binding.editModel.setText(viewModel.modelId)
 
-        arguments?.getString("error")?.takeIf { it.isNotBlank() }?.let {
+        arguments?.getString(ARG_ERROR)?.takeIf { it.isNotBlank() }?.let {
             binding.errorText.text = it
-            binding.errorText.visibility = View.VISIBLE
+            binding.errorText.isVisible = true
         }
 
         binding.editToken.doAfterTextChanged {
@@ -47,4 +48,8 @@ class TokenFragment : Fragment() {
     }
 
     override fun onDestroyView() { super.onDestroyView(); _binding = null }
+
+    companion object {
+        const val ARG_ERROR = "error"
+    }
 }
