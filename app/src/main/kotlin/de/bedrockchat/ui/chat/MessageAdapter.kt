@@ -1,7 +1,10 @@
 package de.bedrockchat.ui.chat
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -42,7 +45,19 @@ class MessageAdapter(private val markwon: Markwon) : ListAdapter<Message, Recycl
 
     private class UserViewHolder(private val b: ItemMessageUserBinding) :
         RecyclerView.ViewHolder(b.root), BindableHolder {
-        override fun bind(msg: Message) { b.messageText.text = msg.text }
+        override fun bind(msg: Message) {
+            b.messageText.text = msg.text
+            b.messageText.isVisible = msg.text.isNotBlank()
+
+            if (msg.imageBase64 != null) {
+                val bytes = Base64.decode(msg.imageBase64, Base64.NO_WRAP)
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                b.imagePreview.setImageBitmap(bitmap)
+                b.imagePreview.isVisible = true
+            } else {
+                b.imagePreview.isVisible = false
+            }
+        }
     }
 
     private class AssistantViewHolder(

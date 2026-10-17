@@ -15,6 +15,11 @@
     <string name="btn_send">Senden</string>
     <string name="dismiss_error">Fehler schließen</string>
 
+    <!-- Image upload -->
+    <string name="btn_attach">Bild anhängen</string>
+    <string name="btn_remove_image">Bild entfernen</string>
+    <string name="image_preview">Bildvorschau</string>
+
     <!-- Error messages -->
     <string name="error_token_invalid">Token ungültig — bitte neu eingeben</string>
 </resources>

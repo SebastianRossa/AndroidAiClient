@@ -9,12 +9,25 @@
     android:paddingTop="4dp"
     android:paddingBottom="4dp">
 
-    <TextView
-        android:id="@+id/messageText"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_bubble_user"
-        android:padding="12dp"
-        android:textSize="15sp"
-        android:textColor="@color/on_primary" />
+        android:orientation="vertical"
+        android:background="@drawable/bg_bubble_user">
+
+        <ImageView
+            android:id="@+id/imagePreview"
+            android:layout_width="220dp"
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/messageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="15sp"
+            android:textColor="@color/on_primary" />
+    </LinearLayout>
 </LinearLayout>

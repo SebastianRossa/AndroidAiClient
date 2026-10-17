@@ -53,7 +53,19 @@ class BedrockRepository(private val tokenStore: TokenStore) {
                     addJsonObject {
                         put("role", msg.role.value)
                         putJsonArray("content") {
-                            addJsonObject { put("text", msg.text) }
+                            if (msg.imageBase64 != null) {
+                                addJsonObject {
+                                    putJsonObject("image") {
+                                        put("format", msg.imageMimeType ?: "jpeg")
+                                        putJsonObject("source") {
+                                            put("bytes", msg.imageBase64)
+                                        }
+                                    }
+                                }
+                            }
+                            if (msg.text.isNotBlank()) {
+                                addJsonObject { put("text", msg.text) }
+                            }
                         }
                     }
                 }

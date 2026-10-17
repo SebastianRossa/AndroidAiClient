@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
@@ -41,6 +42,10 @@ class ChatFragment : Fragment() {
                 .usePlugin(TablePlugin.create(requireContext()))
                 .build()
         )
+    }
+
+    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { viewModel.selectImage(it) }
     }
 
     override fun onCreateView(
@@ -82,7 +87,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun sendCurrentInput() {
-        val text = binding.editInput.text?.toString()?.takeIf { it.isNotBlank() } ?: return
+        val text = binding.editInput.text?.toString() ?: ""
         viewModel.send(text)
         binding.editInput.text?.clear()
     }
@@ -100,6 +105,10 @@ class ChatFragment : Fragment() {
         }
 
         binding.btnDismissError.setOnClickListener { viewModel.clearError() }
+
+        binding.btnAttach.setOnClickListener { pickImage.launch("image/*") }
+
+        binding.btnRemoveImage.setOnClickListener { viewModel.clearPendingImage() }
     }
 
     private fun setupMenu() {
@@ -139,10 +148,23 @@ class ChatFragment : Fragment() {
                         val isLoading = state is ChatViewModel.UiState.Loading
                         binding.progressBar.isVisible = isLoading
                         binding.btnSend.isEnabled = !isLoading
+                        binding.btnAttach.isEnabled = !isLoading
                         binding.errorBanner.isVisible = state is ChatViewModel.UiState.Error
 
                         if (state is ChatViewModel.UiState.Error) {
                             binding.errorText.text = state.message
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.pendingImage.collect { pending ->
+                        if (pending != null) {
+                            binding.imagePreviewContainer.isVisible = true
+                            binding.previewImage.setImageURI(pending.uri)
+                        } else {
+                            binding.imagePreviewContainer.isVisible = false
+                            binding.previewImage.setImageURI(null)
                         }
                     }
                 }

@@ -26,7 +26,7 @@
         android:background="@color/error_container"
         android:padding="12dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/inputBar"
+        app:layout_constraintBottom_toTopOf="@id/imagePreviewContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -47,6 +47,41 @@
             android:contentDescription="@string/dismiss_error" />
     </LinearLayout>
 
+    <!-- Image preview strip (shown when an image is selected) -->
+    <LinearLayout
+        android:id="@+id/imagePreviewContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="?attr/colorSurfaceVariant"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/inputBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp">
+
+            <ImageView
+                android:id="@+id/previewImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/image_preview" />
+
+            <ImageButton
+                android:id="@+id/btnRemoveImage"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="top|end"
+                android:background="@color/error_container"
+                app:srcCompat="@drawable/ic_close"
+                android:contentDescription="@string/btn_remove_image" />
+        </FrameLayout>
+    </LinearLayout>
+
     <!-- Input bar -->
     <LinearLayout
         android:id="@+id/inputBar"
@@ -59,6 +94,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnAttach"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_image"
+            android:contentDescription="@string/btn_attach" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
