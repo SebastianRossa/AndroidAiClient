@@ -22,4 +22,10 @@
 
     <!-- Error messages -->
     <string name="error_token_invalid">Token ungültig — bitte neu eingeben</string>
+
+    <!-- History screen -->
+    <string name="menu_history">Verlauf</string>
+    <string name="menu_clear_conversation">Neues Gespräch</string>
+    <string name="history_empty">Noch keine Gespräche gespeichert</string>
+    <string name="history_delete_conversation">Gespräch löschen</string>
 </resources>

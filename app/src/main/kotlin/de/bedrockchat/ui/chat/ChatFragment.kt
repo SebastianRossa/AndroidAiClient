@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.bedrockchat.R
 import de.bedrockchat.databinding.FragmentChatBinding
+import de.bedrockchat.ui.history.HistoryFragment
 import de.bedrockchat.ui.token.TokenFragment
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
@@ -53,6 +55,12 @@ class ChatFragment : Fragment() {
     ) = FragmentChatBinding.inflate(inflater, container, false).also { _binding = it }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // Das AppBarLayout in activity_main.xml hat fitsSystemWindows="true" und konsumiert
+        // den Top-Inset (StatusBar) vollständig. Dieser Listener muss daher nur noch
+        // Bottom-Insets behandeln:
+        //   – NavigationsBar: immer vorhanden
+        //   – IME (Tastatur): windowSoftInputMode="adjustNothing" → Fenster schrumpft nicht,
+        //     stattdessen schieben wir das Layout manuell per Padding nach oben.
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
             val insets = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
@@ -60,6 +68,11 @@ class ChatFragment : Fragment() {
             v.updatePadding(bottom = insets.bottom)
             windowInsets
         }
+        // requestApplyInsets: Jetpack Navigation re-created die View bei jedem
+        // Navigationsvorgang. Das System dispatcht Insets nur bei Änderungen –
+        // requestApplyInsets() erzwingt einen frischen Dispatch.
+        ViewCompat.requestApplyInsets(binding.root)
+
         ViewCompat.setWindowInsetsAnimationCallback(
             binding.root,
             object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_STOP) {
@@ -78,6 +91,7 @@ class ChatFragment : Fragment() {
         setupRecyclerView()
         setupInput()
         setupMenu()
+        setupHistoryResultListener()
         observeState()
     }
 
@@ -111,6 +125,20 @@ class ChatFragment : Fragment() {
         binding.btnRemoveImage.setOnClickListener { viewModel.clearPendingImage() }
     }
 
+    /**
+     * Registriert den Fragment-Result-Listener für die Verlaufs-Auswahl.
+     * Wenn der Nutzer eine Konversation im Verlauf antippt, navigiert [HistoryFragment]
+     * via [navigateUp] zurück und übergibt die ID über das Fragment-Result-API.
+     */
+    private fun setupHistoryResultListener() {
+        setFragmentResultListener(HistoryFragment.RESULT_KEY) { _, bundle ->
+            val conversationId = bundle.getLong(HistoryFragment.ARG_CONVERSATION_ID, -1L)
+            if (conversationId > 0L) {
+                viewModel.loadConversation(conversationId)
+            }
+        }
+    }
+
     private fun setupMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
@@ -118,6 +146,10 @@ class ChatFragment : Fragment() {
             }
             override fun onMenuItemSelected(item: MenuItem): Boolean {
                 return when (item.itemId) {
+                    R.id.action_history -> {
+                        findNavController().navigate(R.id.action_chat_to_history)
+                        true
+                    }
                     R.id.action_clear -> { viewModel.clearConversation(); true }
                     R.id.action_settings -> {
                         findNavController().navigate(R.id.action_chat_to_settings)

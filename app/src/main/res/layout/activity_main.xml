@@ -1,10 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.fragment.app.FragmentContainerView
+<!--
+    Root-Layout der Aktivität.
+
+    AppBarLayout.fitsSystemWindows="true":
+        Das AppBarLayout fügt sich selbst ein paddingTop = StatusBar-Höhe hinzu und
+        konsumiert diesen Inset. So erscheint die Toolbar visuell unter der StatusBar,
+        die Hintergrundfarbe reicht aber bis zur Bildschirmoberkante (edge-to-edge).
+
+    FragmentContainerView:
+        Liegt im LinearLayout direkt nach dem AppBarLayout und startet damit
+        garantiert unterhalb der Toolbar – unabhängig von Android-Version oder
+        Navigationsmodus. Kein manuelles Top-Padding in den Fragments nötig.
+
+    Bottom-Insets (NavigationsBar / IME) werden von den einzelnen Fragments per
+    WindowInsetsListener behandelt.
+-->
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_host_fragment"
-    android:name="androidx.navigation.fragment.NavHostFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:defaultNavHost="true"
-    app:navGraph="@navigation/nav_graph" />
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph" />
+
+</LinearLayout>

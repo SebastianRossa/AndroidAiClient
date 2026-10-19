@@ -15,7 +15,11 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.util.concurrent.TimeUnit
 
-class BedrockRepository(private val tokenStore: TokenStore) {
+class BedrockRepository(
+    private val tokenStore: TokenStore,
+    /** Überschreibt die Basis-URL für Tests (z. B. MockWebServer). Im Produktivbetrieb null. */
+    internal val baseUrl: String? = null
+) {
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -76,14 +80,15 @@ class BedrockRepository(private val tokenStore: TokenStore) {
             }
         }
 
-    private fun buildUrl(config: BedrockConfig): HttpUrl =
-        "https://bedrock-runtime.${config.region}.amazonaws.com"
-            .toHttpUrl()
+    private fun buildUrl(config: BedrockConfig): HttpUrl {
+        val root = baseUrl ?: "https://bedrock-runtime.${config.region}.amazonaws.com"
+        return root.toHttpUrl()
             .newBuilder()
             .addPathSegment("model")
             .addPathSegment(config.modelId)
             .addPathSegment("converse")
             .build()
+    }
 
     private fun handleResponse(response: Response): String = when {
         response.code == HTTP_UNAUTHORIZED -> {
