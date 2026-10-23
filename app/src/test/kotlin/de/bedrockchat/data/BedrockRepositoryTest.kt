@@ -214,6 +214,44 @@ class BedrockRepositoryTest {
     }
 
     @Test
+    fun `default maxTokens is large enough for full responses`() {
+        val config = BedrockConfig()
+        assertTrue(
+            "maxTokens (${'$'}{config.maxTokens}) sollte >= 4096 sein, damit Antworten nicht abgeschnitten werden",
+            config.maxTokens >= 4096
+        )
+    }
+
+    @Test
+    fun `default config sends correct maxTokens to API`() = runTest {
+        mockWebServer.enqueue(mockResponse(200, successResponseBody))
+        repository.converse(listOf(Message(MessageRole.USER, "Hi")), BedrockConfig())
+
+        val body = json.parseToJsonElement(mockWebServer.takeRequest().body!!.utf8()).jsonObject
+        val inferenceConfig = body["inferenceConfig"]!!.jsonObject
+
+        assertEquals(4096, inferenceConfig["maxTokens"]!!.jsonPrimitive.int)
+    }
+
+    @Test
+    fun `long response body is fully extracted`() = runTest {
+        val longText = "A".repeat(5000)
+        val responseBody = """
+            {
+              "output": {
+                "message": {
+                  "content": [{ "text": "$longText" }]
+                }
+              }
+            }
+        """.trimIndent()
+        mockWebServer.enqueue(mockResponse(200, responseBody))
+        val result = repository.converse(listOf(Message(MessageRole.USER, "Hi")), BedrockConfig())
+        assertTrue(result.isSuccess)
+        assertEquals(5000, result.getOrNull()!!.length)
+    }
+
+    @Test
     fun `malformed JSON response returns failure`() = runTest {
         mockWebServer.enqueue(mockResponse(200, "not valid json"))
         val result = repository.converse(listOf(Message(MessageRole.USER, "Hi")), BedrockConfig())
