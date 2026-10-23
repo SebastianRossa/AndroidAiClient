@@ -1,9 +1,13 @@
 package de.bedrockchat.ui.chat
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -57,6 +61,8 @@ class MessageAdapter(private val markwon: Markwon) : ListAdapter<Message, Recycl
             } else {
                 b.imagePreview.isVisible = false
             }
+
+            b.root.setOnLongClickListener { b.root.context.copyToClipboard(msg.text); true }
         }
     }
 
@@ -64,6 +70,15 @@ class MessageAdapter(private val markwon: Markwon) : ListAdapter<Message, Recycl
         private val b: ItemMessageAssistantBinding,
         private val markwon: Markwon
     ) : RecyclerView.ViewHolder(b.root), BindableHolder {
-        override fun bind(msg: Message) { markwon.setMarkdown(b.messageText, msg.text) }
+        override fun bind(msg: Message) {
+            markwon.setMarkdown(b.messageText, msg.text)
+            b.messageText.setOnLongClickListener { b.messageText.context.copyToClipboard(msg.text); true }
+        }
     }
+}
+
+private fun Context.copyToClipboard(text: String) {
+    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    clipboard.setPrimaryClip(ClipData.newPlainText("Nachricht", text))
+    Toast.makeText(this, getString(de.bedrockchat.R.string.msg_copied), Toast.LENGTH_SHORT).show()
 }
