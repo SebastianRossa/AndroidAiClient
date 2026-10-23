@@ -1,15 +1,13 @@
 package de.bedrockchat.ui.chat
 
 import android.app.Application
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Base64
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import de.bedrockchat.data.BedrockRepository
+import de.bedrockchat.data.ImageProcessor
 import de.bedrockchat.data.UnauthorizedException
 import de.bedrockchat.data.local.ChatDatabase
 import de.bedrockchat.data.local.ChatLocalRepository
@@ -27,13 +25,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 
 class ChatViewModel(
     app: Application,
     private val tokenStore: TokenStore,
     private val repository: BedrockRepository,
-    private val localRepository: ChatLocalRepository
+    private val localRepository: ChatLocalRepository,
+    private val imageProcessor: ImageProcessor = ImageProcessor(app)
 ) : AndroidViewModel(app) {
 
     companion object {
@@ -81,9 +79,9 @@ class ChatViewModel(
 
     fun selectImage(uri: Uri) {
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) { processImage(uri) }
-            if (result != null) {
-                _pendingImage.value = PendingImage(uri, result.first, result.second)
+            val encoded = withContext(Dispatchers.IO) { imageProcessor.encode(uri) }
+            if (encoded != null) {
+                _pendingImage.value = PendingImage(uri, encoded.base64, encoded.mimeType)
             }
         }
     }
@@ -174,35 +172,5 @@ class ChatViewModel(
         _uiState.value = UiState.Idle
         _pendingImage.value = null
         currentConversationId = null
-    }
-
-    private fun processImage(uri: Uri): Pair<String, String>? {
-        return try {
-            val inputStream = getApplication<Application>().contentResolver.openInputStream(uri)
-                ?: return null
-            val original = BitmapFactory.decodeStream(inputStream)
-            inputStream.close()
-            original ?: return null
-
-            val maxDim = 1024
-            val scale = minOf(maxDim.toFloat() / original.width, maxDim.toFloat() / original.height, 1f)
-            val bitmap = if (scale < 1f) {
-                val w = (original.width * scale).toInt()
-                val h = (original.height * scale).toInt()
-                val scaled = Bitmap.createScaledBitmap(original, w, h, true)
-                original.recycle()
-                scaled
-            } else {
-                original
-            }
-
-            val out = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out)
-            bitmap.recycle()
-
-            Pair(Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP), "jpeg")
-        } catch (e: Exception) {
-            null
-        }
     }
 }
