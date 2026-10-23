@@ -36,7 +36,7 @@ class ChatFragment : Fragment() {
 
     private var _binding: FragmentChatBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: ChatViewModel by viewModels()
+    private val viewModel: ChatViewModel by viewModels { ChatViewModel.factory(requireActivity().application) }
     private val adapter by lazy {
         MessageAdapter(
             Markwon.builder(requireContext())

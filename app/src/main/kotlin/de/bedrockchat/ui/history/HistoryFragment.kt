@@ -23,7 +23,7 @@ class HistoryFragment : Fragment() {
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: HistoryViewModel by viewModels()
+    private val viewModel: HistoryViewModel by viewModels { HistoryViewModel.factory(requireActivity().application) }
 
     private val adapter by lazy {
         ConversationAdapter(
