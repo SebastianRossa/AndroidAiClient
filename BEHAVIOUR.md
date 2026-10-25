@@ -84,6 +84,16 @@ für neue Features oder Refactorings.
 - Beim nächsten App-Start ist sie im Verlauf auffindbar und kann vollständig
   wiederhergestellt werden.
 
+### 2.5 Antwortlänge
+
+- Assistenten-Antworten werden **vollständig** dargestellt, auch bei langen
+  Texten (mehrere tausend Zeichen / Tokens).
+- Der `maxTokens`-Parameter in `Defaults.kt` bestimmt die maximale Antwortlänge
+  serverseitig. Er muss mindestens **4096** betragen, damit typische Antworten
+  nicht abgeschnitten werden.
+- Die App selbst hat **keine clientseitige Längenbegrenzung** für den
+  Nachrichtentext.
+
 ---
 
 ## 3. Edge-to-Edge / Insets (technische Anforderung)
